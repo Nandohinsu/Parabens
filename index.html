@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Parabéns irmão!</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+#enter {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+}
+    .mensagem {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+      font-size: 28px;
+      max-width: 80%;
+      line-height: 1.5;
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+<div id="enter">
+  click para entrar...
+</div>
+<div class="mensagem">
+  Hoje é teu dia, irmão! 🎉<br><br>
+  Mais um ano de vida agora são 29 na conta 🥳<br><br>
+  Que essa nova fase venha cheia de conquistas, saúde, dinheiro no bolso e muita felicidade! 💰✨
+</div>
+<div class="autor">
+  <p style="position: absolute; bottom: 10px; right: 10px; color: white; font-size: 14px;">Feito por <a href="https://nandohinsu.github.io/nando.me/" target="_blank" style="color: #00FFFF;">Nando</a></p>
+</div> 
+
+<canvas id="fogos">
+  
+</canvas>
+
+<!-- 🔊 ÁUDIO CORRIGIDO -->
+<audio id="musica" loop>
+  <source src="musicas/happy.mp3" type="audio/mp3">
+</audio>
+
+<script>
+const audio = document.getElementById("musica");
+
+const enter = document.getElementById("enter");
+
+enter.addEventListener("click", () => {
+  audio.play().catch(e => console.log("Erro ao tocar:", e));
+  
+  // remove a tela de entrada
+  enter.style.display = "none";
+});
+
+const canvas = document.getElementById("fogos");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let fogos = [];
+
+class Particula {
+  constructor(x, y, cor) {
+    this.x = x;
+    this.y = y;
+    this.cor = cor;
+    this.velX = (Math.random() - 0.5) * 6;
+    this.velY = (Math.random() - 0.5) * 6;
+    this.alpha = 1;
+  }
+
+  update() {
+    this.x += this.velX;
+    this.y += this.velY;
+    this.alpha -= 0.003;
+  }
+
+  draw() {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.cor;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function criarExplosao(x, y) {
+  const cores = ["red", "yellow", "blue", "orange", "white", "purple"];
+
+  for (let i = 0; i < 80; i++) {
+    const cor = cores[Math.floor(Math.random() * cores.length)];
+    fogos.push(new Particula(x, y, cor));
+  }
+}
+
+function animar() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  fogos.forEach((p, index) => {
+    p.update();
+    p.draw();
+
+    if (p.alpha <= 0) {
+      fogos.splice(index, 1);
+    }
+  });
+
+  requestAnimationFrame(animar);
+}
+
+setInterval(() => {
+  const x = Math.random() * canvas.width;
+  const y = Math.random() * canvas.height / 2;
+  criarExplosao(x, y);
+}, 800);
+
+canvas.addEventListener("click", (e) => {
+  criarExplosao(e.clientX, e.clientY);
+});
+
+animar();
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
